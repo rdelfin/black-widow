@@ -28,4 +28,7 @@
 *.out
 *.app
 
+# Clion / Idea
+.idea/
+
 # Created by .ignore support plugin (hsz.mobi)
