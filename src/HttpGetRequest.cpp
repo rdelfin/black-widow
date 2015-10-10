@@ -8,4 +8,8 @@ namespace bw {
     HttpGetRequest::HttpGetRequest() : HttpRequest() {
 
     }
+
+    HttpGetRequest::~HttpGetRequest() {
+
+    }
 }

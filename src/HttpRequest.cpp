@@ -1,5 +1,7 @@
 //
 // Created by Ricardo Delfin Garcia on 10/8/2015.
+// Some code was obtained from Boost example file for HTTP clients:
+// http://www.boost.org/doc/libs/1_47_0/doc/html/boost_asio/example/http/client/sync_client.cpp
 //
 
 #include "black-widow/HttpRequest.h"
