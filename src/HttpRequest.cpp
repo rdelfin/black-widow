@@ -5,9 +5,7 @@
 #include "black-widow/HttpRequest.h"
 
 #include <boost/regex.hpp>
-#include <boost/asio.hpp>
 
-#include <sstream>
 #include <iostream>
 
 #include "black-widow/HttpResponse.h"
