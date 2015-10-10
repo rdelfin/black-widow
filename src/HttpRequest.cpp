@@ -111,6 +111,11 @@ namespace bw {
         }
     }
 
+    void HttpRequest::setHeader(const std::string& field, const std::string& value) {
+        // TODO: Check if it is a registered header field and warn the user
+        headers[field] = value;
+    }
+
     HttpRequest::~HttpRequest() {
 
     }

@@ -33,6 +33,11 @@ namespace bw {
          */
         virtual HttpResponse* send();
 
+        /**
+         * Lets the user add custom headers
+         */
+        void setHeader(const std::string& field, const std::string& value);
+
         virtual ~HttpRequest();
 
     private:
