@@ -1,10 +1,8 @@
-Crawler
+Black Widow
 =======
 
 A C++ web crawler.
 
 Prerequesites
 -------
-* openssl
-* zlib
-* curlpp
+* boost

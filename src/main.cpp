@@ -34,6 +34,7 @@ int main(int argc, char* argv[]) {
         // allow us to treat all data up until the EOF as the content.
         boost::asio::streambuf request;
         std::ostream request_stream(&request);
+        
         request_stream << "GET " << argv[2] << " HTTP/1.0\r\n";
         request_stream << "Host: " << argv[1] << "\r\n";
         request_stream << "Accept: */*\r\n";
