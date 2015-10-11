@@ -48,6 +48,7 @@ namespace bw {
         std::string body;
 
         boost::asio::ip::tcp::socket* socket;
+        boost::asio::io_service* io_service;
 
         /**
          * Returns the HTTP method type (i.e. GET, POST, PUT, DELETE, PATCH, HEADER, OPTIONS)

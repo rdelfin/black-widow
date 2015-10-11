@@ -26,10 +26,11 @@ namespace bw {
         boost::regex isHost("^(\\w+\\.)*\\w+(:\\d?)?$");
         boost::regex isPath("^\\/([\\w-]+\\/)*([\\w-]+(\\.\\w+)?)?(\\?(\\w+=[\\w%]+)(&(\\w+=[\\w%]+))*)?$");
 
-        if(!boost::regex_match(host, isHost, boost::match_default)
+        if(boost::regex_match(host, isHost, boost::match_default)
            && boost::regex_match(path, isPath, boost::match_default)) {
             this->host = host;
             this->path = path;
+            return true;
         }
 
         return false;
@@ -47,23 +48,23 @@ namespace bw {
             return NULL;
 
         // Create a new response with the socket and hand over ownership. Return the response.
-        HttpResponse* response = new HttpResponse(socket);
+        HttpResponse* httpResponse = new HttpResponse(socket, io_service);
         socket = nullptr;
-        return response;
+        return httpResponse;
     }
 
     bool HttpRequest::sendSocket(boost::asio::streambuf& data) {
         try {
 
-            boost::asio::io_service io_service;
+            io_service = new boost::asio::io_service;
 
-            // Get a list of endpoints corresponding to the server name.
-            tcp::resolver resolver(io_service);
+            // Get a list of endpoints corresponding to the server name
+            tcp::resolver resolver(*io_service);
             tcp::resolver::query query(host, "http");
             tcp::resolver::iterator endpoint_iterator = resolver.resolve(query);
 
             // Try each endpoint until we successfully establish a connection.
-            socket = new tcp::socket(io_service);
+            socket = new tcp::socket(*io_service);
             tcp::resolver::iterator it = boost::asio::connect(*socket, endpoint_iterator);
 
             // Send the request.
@@ -98,14 +99,17 @@ namespace bw {
         // Additional header fields
         for(boost::unordered_map<std::string, std::string>::iterator it = headers.begin();
             it != headers.end(); ++it) {
-            request_stream << it->first << ": " << it->second << "\r\n";
+            std::stringstream ss;
+            ss << it->first << ": " << it->second << "\r\n";
+            std:: string line = ss.str();
+            request_stream << line;
         }
+
+        // New line between header and content (even if content is empty)
+        request_stream << "\r\n";
 
         // If there is content, add request body
         if(body.size() != 0) {
-            // New line between header and content
-            request_stream << "\r\n";
-
             //Append body
             request_stream << body;
         }

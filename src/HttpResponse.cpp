@@ -15,10 +15,10 @@
 namespace bw
 {
 
-    HttpResponse::HttpResponse(boost::asio::ip::tcp::socket *originSkt)
-        : headersFetched(false), bodyFetched(false)
+    HttpResponse::HttpResponse(boost::asio::ip::tcp::socket *originSkt, boost::asio::io_service* io_service)
+        : headersFetched(false), bodyFetched(false), originSkt(originSkt), io_service(io_service)
     {
-        this->originSkt = originSkt;
+
     }
 
 
@@ -30,7 +30,9 @@ namespace bw
 
         // Read status line in response. In ABNS: status-line = HTTP-version SP status-code SP reason-phrase CRLF
         boost::asio::streambuf response;
-        boost::asio::read_until(*originSkt, response, "\r\n");
+
+        boost::system::error_code ec;
+        boost::asio::read_until(*originSkt, response, "\r\n", ec);
 
         std::istream response_stream(&response);
         std::string http_version;

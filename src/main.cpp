@@ -29,12 +29,16 @@ int main(int argc, char* argv[]) {
             throw e;
         }
 
+        request->setHeader("Accept", "*/*");
         request->setHeader("Connection", "close");
 
         bw::HttpResponse* response = request->send();
 
         response->fetchHeaders();
         response->fetchBody();
+
+        cout << "Body: " << endl;
+        cout << response->getBody();
     }
     catch (std::exception& e)
     {
