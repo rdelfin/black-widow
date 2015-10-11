@@ -8,32 +8,33 @@
 #include <boost/regex.hpp>
 #include <boost/algorithm/string.hpp>
 
-#include <sstream>
-
 #include "black-widow/HttpResponse.h"
 
 namespace bw
 {
 
     HttpResponse::HttpResponse(boost::asio::ip::tcp::socket *originSkt, boost::asio::io_service* io_service)
-        : headersFetched(false), bodyFetched(false), originSkt(originSkt), io_service(io_service)
+        : originSkt(originSkt), io_service(io_service)
     {
 
     }
 
 
-    bool HttpResponse::fetchHeaders() {
-        if(headersFetched || bodyFetched) {
-            // TODO: Throw an exception (InvalidStateException?)
-            return false;
-        }
+    bool HttpResponse::fetch() {
+        // Read until EOF, and call processors after ALL data has been received. Otherwise data might be lost.
+        boost::system::error_code error;
+        while (boost::asio::read(*originSkt, response, boost::asio::transfer_at_least(1), error));
 
+        // Throw error
+        if (error != boost::asio::error::eof)
+            throw boost::system::system_error(error);
+
+        return processHeaders() && processBody();
+    }
+
+
+    bool HttpResponse::processHeaders() {
         // Read status line in response. In ABNS: status-line = HTTP-version SP status-code SP reason-phrase CRLF
-        boost::asio::streambuf response;
-
-        boost::system::error_code ec;
-        boost::asio::read_until(*originSkt, response, "\r\n", ec);
-
         std::istream response_stream(&response);
         std::string http_version;
         unsigned int status_code;
@@ -41,7 +42,6 @@ namespace bw
 
         response_stream >> http_version;
         response_stream >> status_code;
-        std::getline(response_stream, status_message);
 
         if (!response_stream || http_version.substr(0, 5) != "HTTP/")
         {
@@ -54,9 +54,6 @@ namespace bw
             return false;
         }
 
-        // Read the response headers, which are terminated by a blank line.
-        boost::asio::read_until(*originSkt, response, "\r\n\r\n");
-
         // Iterate over the response headers.
         std::string headerString;
         while (std::getline(response_stream, headerString) && headerString != "\r") {
@@ -68,37 +65,25 @@ namespace bw
             }
         }
 
-        // Potentially, we could have a more complex headersFetched checking system.
-        headersFetched = true;
-        return headersFetched;
-    }
-
-
-
-    bool HttpResponse::fetchBody() {
-        if(bodyFetched || !headersFetched) {
-            // TODO: Throw exception
-            return false;
-        }
-
-        std::stringstream responseStream;
-        boost::asio::streambuf response;
-
-        // Read until EOF, writing data to response stream as we go.
-        boost::system::error_code error;
-        while (boost::asio::read(*originSkt, response, boost::asio::transfer_at_least(1), error)) {
-            responseStream << &response;
-        }
-
-        // Throw error
-        if (error != boost::asio::error::eof)
-            throw boost::system::system_error(error);
-
-        body = responseStream.str();
-
         return true;
     }
 
+
+    bool HttpResponse::processBody() {
+        // Response stream used to parse over HTTP response
+        std::istream response_stream(&response);
+
+        // Read every line in the body. Insert \n at the end of each line
+        std::string bodyLine;
+        std::stringstream bodyBuilder; // Huehuehuehue
+        while (!response_stream.eof() && std::getline(response_stream, bodyLine)) {
+            bodyBuilder << bodyLine << std::endl;
+        }
+
+        body = bodyBuilder.str();
+
+        return true;
+    }
 
 
     bool HttpResponse::separateHeader(const std::string& line, std::string& field, std::string& value) {

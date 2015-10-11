@@ -22,15 +22,9 @@ namespace bw {
 
         /**
          * Obtains data form the request and stores into the appropriate data structures. If this has not been called
-         * the request will not have been fulfilled.
+         * the request will not have been fulfilled. This will store both the body and the headers.
          */
-        bool fetchHeaders();
-
-        /**
-         * Obtains the body of the request. Will only do so if the headers have already been marked as fetched and the
-         * socket is in the appropriate state (open). It will store into the body member variable.
-         */
-        bool fetchBody();
+        bool fetch();
 
         std::string getBody();
         std::string getHeader(const std::string& field);
@@ -44,8 +38,10 @@ namespace bw {
 
         bool separateHeader(const std::string& line, std::string& field, std::string& value);
 
-        bool headersFetched, bodyFetched;
+        bool processHeaders();
+        bool processBody();
 
+        boost::asio::streambuf response;
         std::string body;
     };
 

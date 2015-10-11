@@ -34,8 +34,7 @@ int main(int argc, char* argv[]) {
 
         bw::HttpResponse* response = request->send();
 
-        response->fetchHeaders();
-        response->fetchBody();
+        response->fetch();
 
         cout << "Body: " << endl;
         cout << response->getBody();
