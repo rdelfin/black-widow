@@ -31,7 +31,7 @@ namespace bw {
          * Default destructor does nothing
          */
         virtual ~Parser() { }
-    private:
+    protected:
 
         const std::istream& stream;
         std::vector<T> parsedData;
