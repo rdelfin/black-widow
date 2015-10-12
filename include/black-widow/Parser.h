@@ -20,20 +20,18 @@ namespace bw {
         /**
          * Default constructor. Uses a data stream as an input.
          */
-        Parser(std::istream& stream) : stream(stream) { }
+        Parser() { }
 
         /**
          * Parses the data and returns a std::vector itterator. THe
          */
-        virtual std::vector<T>::iterator& parse() = 0;
+        virtual const typename std::vector<T>::iterator& parse() = 0;
 
         /**
          * Default destructor does nothing
          */
         virtual ~Parser() { }
     protected:
-
-        const std::istream& stream;
         std::vector<T> parsedData;
     };
 }

@@ -19,8 +19,9 @@ namespace bw {
         /**
          * Default constructor uses stringstream instead of generic istream data structure.
          */
-        StringParser(std::stringstream& ss) : Parser(ss) { }
-    private:
+        StringParser(std::stringstream& ss) : stream(ss) { }
+    protected:
+        std::stringstream& stream;
     };
 }
 
