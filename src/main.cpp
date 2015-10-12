@@ -5,6 +5,8 @@
 #include <black-widow/HttpRequest.h>
 #include <black-widow/HttpGetRequest.h>
 #include <black-widow/HttpResponse.h>
+#include <black-widow/Parser.h>
+#include <black-widow/RegexParser.h>
 
 using boost::asio::ip::tcp;
 
@@ -37,8 +39,18 @@ int main(int argc, char* argv[]) {
 
         response->fetch();
 
-        cout << "Body: " << endl;
-        cout << response->getBody();
+        std::string body = response->getBody();
+        std::stringstream ss(body);
+
+        std::string pattern = "(?<=href=\")[^\\s]+(?=\")";
+        bw::RegexParser p(ss, pattern);
+        p.parse();
+
+        cout << "Parsed links: " << endl;
+
+        for(size_t i = 0; i < p.size(); i++) {
+            cout << p[i] << endl;
+        }
     }
     catch (std::exception& e)
     {

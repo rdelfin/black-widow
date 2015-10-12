@@ -29,6 +29,9 @@ namespace bw {
         std::string getBody();
         std::string getHeader(const std::string& field);
 
+        int getStatusCode() { return status_code; }
+        const std::string& getStatusMessage() { return status_message; }
+
         virtual ~HttpResponse() { delete originSkt; };
     private:
         boost::unordered_map<std::string, std::string> header;
@@ -43,6 +46,9 @@ namespace bw {
 
         boost::asio::streambuf response;
         std::string body;
+
+        int status_code;
+        std::string status_message;
     };
 
 }

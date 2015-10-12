@@ -8,24 +8,22 @@
 namespace bw
 {
 
-    RegexParser::RegexParser(std::stringstream& ss, std::string& patern)
-        : StringParser(ss), patern(patern)
+    RegexParser::RegexParser(std::stringstream& ss, std::string& pattern)
+        : StringParser(ss), pattern(pattern)
     {
 
     }
 
-    const std::vector<std::string>::iterator& RegexParser::parse() {
+    void RegexParser::parse() {
         std::string data = stream.str();
-        boost::regex rx(patern);
-        boost::smatch tokens;
+        boost::regex rx(pattern);
 
+        boost::sregex_token_iterator it(data.begin(), data.end(), rx, 0);
+        boost::sregex_token_iterator end;
 
-        if(boost::regex_match(data, tokens, rx, boost::match_extra))
-            for(size_t i = 0; i < tokens.size(); i++)
-                parsedData.push_back(tokens[i]);
-
-        it = parsedData.begin();
-        return it;
+        for( ; it != end; ++it) {
+            parsedData.push_back(*it);
+        }
     }
 
     RegexParser::~RegexParser() {

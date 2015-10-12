@@ -11,13 +11,13 @@ namespace bw
 {
     class RegexParser : public StringParser {
     public:
-        RegexParser(std::stringstream&, std::string&);
+        RegexParser(std::stringstream& stream, std::string& pattern);
 
-        virtual const std::vector<std::string>::iterator& parse();
+        virtual void parse();
 
         virtual ~RegexParser();
     private:
-        std::string& patern;
+        std::string& pattern;
         std::vector<std::string>::iterator it;
     };
 }

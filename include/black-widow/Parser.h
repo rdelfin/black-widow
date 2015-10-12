@@ -23,9 +23,12 @@ namespace bw {
         Parser() { }
 
         /**
-         * Parses the data and returns a std::vector itterator. THe
+         * Parses the data and stores it in the inner vector data structure.
          */
-        virtual const typename std::vector<T>::iterator& parse() = 0;
+        virtual void parse() = 0;
+
+        size_t size() { return parsedData.size(); }
+        const T& operator[](unsigned int i)const{ return parsedData[i]; }
 
         /**
          * Default destructor does nothing
