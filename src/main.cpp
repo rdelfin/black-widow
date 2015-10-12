@@ -24,7 +24,8 @@ int main(int argc, char* argv[]) {
         bw::HttpRequest* request = new bw::HttpGetRequest;
 
         if(!request->setOrigin(argv[1], argv[2])) {
-            std::cout << "Wat" << endl;
+            std::cerr << "Error when setting origin " << argv[1]
+                      << " with path " << argv[2] << std::endl;
             std::exception e;
             throw e;
         }
@@ -41,7 +42,7 @@ int main(int argc, char* argv[]) {
     }
     catch (std::exception& e)
     {
-        std::cout << "Exception: " << e.what() << "\n";
+        std::cout << "Exception: " << e.what() << std::endl;
     }
 
     return 0;
