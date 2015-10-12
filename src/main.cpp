@@ -5,6 +5,8 @@
 #include <black-widow/HttpRequest.h>
 #include <black-widow/HttpGetRequest.h>
 #include <black-widow/HttpResponse.h>
+#include <black-widow/Parser.h>
+#include <black-widow/RegexParser.h>
 
 using boost::asio::ip::tcp;
 
@@ -24,7 +26,8 @@ int main(int argc, char* argv[]) {
         bw::HttpRequest* request = new bw::HttpGetRequest;
 
         if(!request->setOrigin(argv[1], argv[2])) {
-            std::cout << "Wat" << endl;
+            std::cerr << "Error when setting origin " << argv[1]
+                      << " with path " << argv[2] << std::endl;
             std::exception e;
             throw e;
         }
@@ -36,12 +39,22 @@ int main(int argc, char* argv[]) {
 
         response->fetch();
 
-        cout << "Body: " << endl;
-        cout << response->getBody();
+        std::string body = response->getBody();
+        std::stringstream ss(body);
+
+        std::string pattern = "(?<=href=\")[^\\s]+(?=\")";
+        bw::RegexParser p(ss, pattern);
+        p.parse();
+
+        cout << "Parsed links: " << endl;
+
+        for(size_t i = 0; i < p.size(); i++) {
+            cout << p[i] << endl;
+        }
     }
     catch (std::exception& e)
     {
-        std::cout << "Exception: " << e.what() << "\n";
+        std::cout << "Exception: " << e.what() << std::endl;
     }
 
     return 0;

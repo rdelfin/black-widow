@@ -48,11 +48,10 @@ namespace bw
             // TODO: Throw exception
             return false;
         }
-        if (status_code != 200)
-        {
-            // TODO: Throw exception
-            return false;
-        }
+
+        // Store the status code
+        this->status_code = status_code;
+        this->status_message = status_message;
 
         // Iterate over the response headers.
         std::string headerString;

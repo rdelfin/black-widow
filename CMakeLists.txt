@@ -21,7 +21,7 @@ include_directories(
         ${Boost_INCLUDE_DIRS}
 )
 
-set(SOURCE_FILES src/main.cpp src/HttpResponse.cpp src/HttpRequest.cpp src/HttpGetRequest.cpp)
+set(SOURCE_FILES src/main.cpp src/HttpResponse.cpp src/HttpRequest.cpp src/HttpGetRequest.cpp src/RegexParser.cpp)
 add_executable(black-widow ${SOURCE_FILES})
 
 target_link_libraries(black-widow wsock32 ws2_32 ${Boost_LIBRARIES})
