@@ -9,7 +9,6 @@
 #include <boost/unordered_map.hpp>
 #include <string>
 
-using boost::asio::ip::tcp;
 
 namespace bw {
     class HttpResponse {
@@ -18,7 +17,8 @@ namespace bw {
          * Default constructor for the HTTP Response. Receives and takes ownership of the TCP Socket. This means
          * that the destructor will destroy (delete) the socket
          */
-        HttpResponse(tcp::socket* originSkt, boost::asio::io_service* io_service);
+        HttpResponse(boost::asio::ssl::stream<boost::asio::ip::tcp::socket>* originSkt, boost::asio::io_service* io_service,
+                     boost::asio::ssl::context* ssl_context);
 
         /**
          * Obtains data form the request and stores into the appropriate data structures. If this has not been called
@@ -36,8 +36,10 @@ namespace bw {
     private:
         boost::unordered_map<std::string, std::string> header;
 
-        tcp::socket* originSkt;
+        boost::asio::ssl::stream<boost::asio::ip::tcp::socket>* originSkt;
         boost::asio::io_service* io_service;
+        boost::asio::ssl::context* ssl_context;
+
 
         bool separateHeader(const std::string& line, std::string& field, std::string& value);
 

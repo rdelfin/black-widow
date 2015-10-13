@@ -8,6 +8,7 @@
 #include <string>
 #include <boost/unordered_map.hpp>
 #include <boost/asio.hpp>
+#include <boost/asio/ssl.hpp>
 #include <ostream>
 
 
@@ -47,8 +48,9 @@ namespace bw {
         //TODO: Makes this some other data type
         std::string body;
 
-        boost::asio::ip::tcp::socket* socket;
+        boost::asio::ssl::stream<boost::asio::ip::tcp::socket>* socket;
         boost::asio::io_service* io_service;
+        boost::asio::ssl::context* ssl_context;
 
         /**
          * Returns the HTTP method type (i.e. GET, POST, PUT, DELETE, PATCH, HEADER, OPTIONS)
@@ -58,6 +60,8 @@ namespace bw {
         void setupRequestStream(std::ostream &request_stream);
 
         bool sendSocket(boost::asio::streambuf& data);
+
+        bool verify_certificate(bool preverified, boost::asio::ssl::verify_context& ctx);
     };
 }
 

@@ -6,7 +6,10 @@
 
 #include "black-widow/HttpRequest.h"
 
+#include <cstdlib>
+
 #include <boost/regex.hpp>
+#include <boost/bind.hpp>
 
 #include <iostream>
 
@@ -57,6 +60,7 @@ namespace bw {
         try {
 
             io_service = new boost::asio::io_service;
+            ssl_context = new boost::asio::ssl::context(boost::asio::ssl::context::sslv23);
 
             // Get a list of endpoints corresponding to the server name
             tcp::resolver resolver(*io_service);
@@ -64,8 +68,13 @@ namespace bw {
             tcp::resolver::iterator endpoint_iterator = resolver.resolve(query);
 
             // Try each endpoint until we successfully establish a connection.
-            socket = new tcp::socket(*io_service);
-            tcp::resolver::iterator it = boost::asio::connect(*socket, endpoint_iterator);
+            socket = new boost::asio::ssl::stream<boost::asio::ip::tcp::socket>(*io_service, *ssl_context);
+
+            // Setup SSL
+            socket->set_verify_mode(boost::asio::ssl::verify_peer);
+            socket->set_verify_callback(boost::bind(&HttpRequest::verify_certificate, this, _1, _2));
+
+            tcp::resolver::iterator it = boost::asio::connect(socket->lowest_layer(), endpoint_iterator);
 
             // Send the request.
             boost::asio::write(*socket, data);
@@ -74,7 +83,7 @@ namespace bw {
             // There was an error. Delete socket, clean up and return false.
             if(socket != nullptr) {
                 boost::system::error_code ec;
-                socket->close(ec);
+                socket->shutdown(ec);
                 delete socket;
                 socket = nullptr;
             }
@@ -118,6 +127,15 @@ namespace bw {
     void HttpRequest::setHeader(const std::string& field, const std::string& value) {
         // TODO: Check if it is a registered header field and warn the user
         headers[field] = value;
+    }
+
+    bool HttpRequest::verify_certificate(bool preverified, boost::asio::ssl::verify_context& ctx) {
+        char subject_name[256];
+        X509* cert = X509_STORE_CTX_get_current_cert(ctx.native_handle());
+        X509_NAME_oneline(X509_get_subject_name(cert), subject_name, 256);
+        std::cout << "Verifying " << subject_name << "\n";
+
+        return preverified;
     }
 
     HttpRequest::~HttpRequest() {

@@ -7,14 +7,16 @@
 #include <iostream>
 #include <boost/regex.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/asio/ssl/stream.hpp>
 
 #include "black-widow/HttpResponse.h"
 
 namespace bw
 {
 
-    HttpResponse::HttpResponse(boost::asio::ip::tcp::socket *originSkt, boost::asio::io_service* io_service)
-        : originSkt(originSkt), io_service(io_service)
+    HttpResponse::HttpResponse(boost::asio::ssl::stream<boost::asio::ip::tcp::socket> *originSkt,
+                               boost::asio::io_service* io_service, boost::asio::ssl::context* ssl_context)
+        : originSkt(originSkt), io_service(io_service), ssl_context(ssl_context)
     {
 
     }
@@ -23,7 +25,7 @@ namespace bw
     bool HttpResponse::fetch() {
         // Read until EOF, and call processors after ALL data has been received. Otherwise data might be lost.
         boost::system::error_code error;
-        while (boost::asio::read(*originSkt, response, boost::asio::transfer_at_least(1), error));
+        while (boost::asio::read(originSkt->lowest_layer(), response, boost::asio::transfer_at_least(1), error));
 
         // Throw error
         if (error != boost::asio::error::eof)
