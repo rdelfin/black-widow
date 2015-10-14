@@ -51,7 +51,7 @@ namespace bw {
             return NULL;
 
         // Create a new response with the socket and hand over ownership. Return the response.
-        HttpResponse* httpResponse = new HttpResponse(socket, io_service);
+        HttpResponse* httpResponse = new HttpResponse(socket, io_service, ssl_context);
         socket = nullptr;
         return httpResponse;
     }

@@ -25,7 +25,7 @@ namespace bw
     bool HttpResponse::fetch() {
         // Read until EOF, and call processors after ALL data has been received. Otherwise data might be lost.
         boost::system::error_code error;
-        while (boost::asio::read(originSkt->lowest_layer(), response, boost::asio::transfer_at_least(1), error));
+        while (boost::asio::read(*originSkt, response, boost::asio::transfer_at_least(1), error));
 
         // Throw error
         if (error != boost::asio::error::eof)
